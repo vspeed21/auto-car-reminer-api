@@ -4,3 +4,4 @@ node_modules/
 # dotenv enviroment variables files
 .env
 *.local
+auto-care-remind-firebase.json
