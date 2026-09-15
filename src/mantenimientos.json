@@ -1,0 +1,152 @@
+[
+  {
+    "nombre": "Cambio de aceite de motor",
+    "intervaloFechaDias": 180,
+    "intervaloKm": 8000,
+    "intervaloMilla": 5000
+  },
+  {
+    "nombre": "Filtro de aire del motor",
+    "intervaloFechaDias": 365,
+    "intervaloKm": 15000,
+    "intervaloMilla": 10000
+  },
+  {
+    "nombre": "Filtro de cabina (Aire acondicionado)",
+    "intervaloFechaDias": 365,
+    "intervaloKm": 20000,
+    "intervaloMilla": 12000
+  },
+  {
+    "nombre": "Rotación de neumáticos",
+    "intervaloFechaDias": 180,
+    "intervaloKm": 10000,
+    "intervaloMilla": 6000
+  },
+  {
+    "nombre": "Alineación y balanceo",
+    "intervaloFechaDias": 365,
+    "intervaloKm": 15000,
+    "intervaloMilla": 10000
+  },
+  {
+    "nombre": "Cambio de pastillas de freno delanteras",
+    "intervaloFechaDias": 730,
+    "intervaloKm": 30000,
+    "intervaloMilla": 18000
+  },
+  {
+    "nombre": "Cambio de líquido de frenos",
+    "intervaloFechaDias": 730,
+    "intervaloKm": 40000,
+    "intervaloMilla": 25000
+  },
+  {
+    "nombre": "Cambio de bujías estándar",
+    "intervaloFechaDias": 1095,
+    "intervaloKm": 45000,
+    "intervaloMilla": 28000
+  },
+  {
+    "nombre": "Cambio de bujías de Iridio",
+    "intervaloFechaDias": 1825,
+    "intervaloKm": 100000,
+    "intervaloMilla": 60000
+  },
+  {
+    "nombre": "Reemplazo de batería",
+    "intervaloFechaDias": 1460,
+    "intervaloKm": 80000,
+    "intervaloMilla": 50000
+  },
+  {
+    "nombre": "Cambio de líquido refrigerante",
+    "intervaloFechaDias": 730,
+    "intervaloKm": 50000,
+    "intervaloMilla": 31000
+  },
+  {
+    "nombre": "Limpieza de cuerpo de aceleración",
+    "intervaloFechaDias": 365,
+    "intervaloKm": 20000,
+    "intervaloMilla": 12000
+  },
+  {
+    "nombre": "Cambio de filtro de combustible",
+    "intervaloFechaDias": 730,
+    "intervaloKm": 40000,
+    "intervaloMilla": 25000
+  },
+  {
+    "nombre": "Reemplazo de limpiaparabrisas (Plumas)",
+    "intervaloFechaDias": 180,
+    "intervaloKm": 10000,
+    "intervaloMilla": 6000
+  },
+  {
+    "nombre": "Cambio de aceite de transmisión automática",
+    "intervaloFechaDias": 1460,
+    "intervaloKm": 80000,
+    "intervaloMilla": 50000
+  },
+  {
+    "nombre": "Cambio de aceite de diferencial",
+    "intervaloFechaDias": 1095,
+    "intervaloKm": 60000,
+    "intervaloMilla": 37000
+  },
+  {
+    "nombre": "Reemplazo de correa de accesorios (Serpentina)",
+    "intervaloFechaDias": 1095,
+    "intervaloKm": 60000,
+    "intervaloMilla": 37000
+  },
+  {
+    "nombre": "Cambio de correa de distribución (Timing Belt)",
+    "intervaloFechaDias": 1825,
+    "intervaloKm": 100000,
+    "intervaloMilla": 62000
+  },
+  {
+    "nombre": "Lavado de motor",
+    "intervaloFechaDias": 180,
+    "intervaloKm": 10000,
+    "intervaloMilla": 6000
+  },
+  {
+    "nombre": "Revisión de suspensión y amortiguadores",
+    "intervaloFechaDias": 730,
+    "intervaloKm": 40000,
+    "intervaloMilla": 25000
+  },
+  {
+    "nombre": "Recarga de gas aire acondicionado",
+    "intervaloFechaDias": 1095,
+    "intervaloKm": 60000,
+    "intervaloMilla": 37000
+  },
+  {
+    "nombre": "Cambio de bombillas de faros principales",
+    "intervaloFechaDias": 730,
+    "intervaloKm": 40000,
+    "intervaloMilla": 25000
+  },
+  {
+    "nombre": "Limpieza y ajuste de frenos traseros (Tambor)",
+    "intervaloFechaDias": 365,
+    "intervaloKm": 20000,
+    "intervaloMilla": 12000
+  },
+  {
+    "nombre": "Cambio de líquido de dirección hidráulica",
+    "intervaloFechaDias": 1095,
+    "intervaloKm": 60000,
+    "intervaloMilla": 37000
+  },
+  {
+    "nombre": "Inspección de mangueras de vacío y refrigerante",
+    "intervaloFechaDias": 365,
+    "intervaloKm": 20000,
+    "intervaloMilla": 12000
+  }
+]

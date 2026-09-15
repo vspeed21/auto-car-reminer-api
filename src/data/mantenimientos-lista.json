@@ -1,0 +1,182 @@
+[
+  {
+    "nombre": "Cambio de aceite de motor",
+    "intervaloFechaDias": 182,
+    "intervaloKm": 5000,
+    "intervaloMilla": 3107
+  },
+  {
+    "nombre": "Cambio de filtro de aceite",
+    "intervaloFechaDias": 365,
+    "intervaloKm": 8000,
+    "intervaloMilla": 4971
+  },
+  {
+    "nombre": "Cambio de filtro de aire",
+    "intervaloFechaDias": 365,
+    "intervaloKm": 10000,
+    "intervaloMilla": 6214
+  },
+  {
+    "nombre": "Cambio de filtro de combustible",
+    "intervaloFechaDias": 730,
+    "intervaloKm": 20000,
+    "intervaloMilla": 12427
+  },
+  {
+    "nombre": "Cambio de filtro de cabina",
+    "intervaloFechaDias": 365,
+    "intervaloKm": 15000,
+    "intervaloMilla": 9321
+  },
+  {
+    "nombre": "Revisión y cambio de bujías",
+    "intervaloFechaDias": 730,
+    "intervaloKm": 30000,
+    "intervaloMilla": 18641
+  },
+  {
+    "nombre": "Cambio de líquido de frenos",
+    "intervaloFechaDias": 730,
+    "intervaloKm": 30000,
+    "intervaloMilla": 18641
+  },
+  {
+    "nombre": "Cambio de líquido de dirección hidráulica",
+    "intervaloFechaDias": 1095,
+    "intervaloKm": 40000,
+    "intervaloMilla": 24855
+  },
+  {
+    "nombre": "Cambio de líquido refrigerante",
+    "intervaloFechaDias": 730,
+    "intervaloKm": 40000,
+    "intervaloMilla": 24855
+  },
+  {
+    "nombre": "Alineación y balanceo",
+    "intervaloFechaDias": 182,
+    "intervaloKm": 10000,
+    "intervaloMilla": 6214
+  },
+  {
+    "nombre": "Rotación de llantas",
+    "intervaloFechaDias": 182,
+    "intervaloKm": 10000,
+    "intervaloMilla": 6214
+  },
+  {
+    "nombre": "Inspección de frenos (pastillas/discos)",
+    "intervaloFechaDias": 182,
+    "intervaloKm": 15000,
+    "intervaloMilla": 9321
+  },
+  {
+    "nombre": "Cambio de pastillas de freno",
+    "intervaloFechaDias": 547,
+    "intervaloKm": 25000,
+    "intervaloMilla": 15534
+  },
+  {
+    "nombre": "Cambio de discos de freno",
+    "intervaloFechaDias": 1095,
+    "intervaloKm": 50000,
+    "intervaloMilla": 31069
+  },
+  {
+    "nombre": "Revisión del sistema de suspensión",
+    "intervaloFechaDias": 365,
+    "intervaloKm": 20000,
+    "intervaloMilla": 12427
+  },
+  {
+    "nombre": "Cambio de amortiguadores",
+    "intervaloFechaDias": 1460,
+    "intervaloKm": 60000,
+    "intervaloMilla": 37282
+  },
+  {
+    "nombre": "Revisión del sistema de escape",
+    "intervaloFechaDias": 365,
+    "intervaloKm": 20000,
+    "intervaloMilla": 12427
+  },
+  {
+    "nombre": "Inspección del sistema eléctrico",
+    "intervaloFechaDias": 365,
+    "intervaloKm": 20000,
+    "intervaloMilla": 12427
+  },
+  {
+    "nombre": "Revisión del sistema de aire acondicionado",
+    "intervaloFechaDias": 365,
+    "intervaloKm": 15000,
+    "intervaloMilla": 9321
+  },
+  {
+    "nombre": "Revisión de correas (alternador, distribución)",
+    "intervaloFechaDias": 730,
+    "intervaloKm": 40000,
+    "intervaloMilla": 24855
+  },
+  {
+    "nombre": "Cambio de correa de distribución",
+    "intervaloFechaDias": 1825,
+    "intervaloKm": 80000,
+    "intervaloMilla": 49710
+  },
+  {
+    "nombre": "Cambio de batería",
+    "intervaloFechaDias": 1095,
+    "intervaloKm": 60000,
+    "intervaloMilla": 37282
+  },
+  {
+    "nombre": "Cambio de llantas",
+    "intervaloFechaDias": 1825,
+    "intervaloKm": 50000,
+    "intervaloMilla": 31069
+  },
+  {
+    "nombre": "Lavado de inyectores",
+    "intervaloFechaDias": 730,
+    "intervaloKm": 30000,
+    "intervaloMilla": 18641
+  },
+  {
+    "nombre": "Inspección de fugas de fluidos",
+    "intervaloFechaDias": 182,
+    "intervaloKm": 10000,
+    "intervaloMilla": 6214
+  },
+  {
+    "nombre": "Limpieza del radiador",
+    "intervaloFechaDias": 730,
+    "intervaloKm": 40000,
+    "intervaloMilla": 24855
+  },
+  {
+    "nombre": "Revisión de luces y bombillas",
+    "intervaloFechaDias": 182,
+    "intervaloKm": 10000,
+    "intervaloMilla": 6214
+  },
+  {
+    "nombre": "Revisión de sensores (oxígeno, temperatura)",
+    "intervaloFechaDias": 730,
+    "intervaloKm": 30000,
+    "intervaloMilla": 18641
+  },
+  {
+    "nombre": "Revisión del cuerpo de aceleración",
+    "intervaloFechaDias": 365,
+    "intervaloKm": 30000,
+    "intervaloMilla": 18641
+  },
+  {
+    "nombre": "Revisión del sistema de transmisión",
+    "intervaloFechaDias": 730,
+    "intervaloKm": 40000,
+    "intervaloMilla": 24855
+  }
+]
