@@ -32,7 +32,7 @@ function fechaToDate(fecha: any): Date | null {
 
 export async function getRecordatorios(req: Request, res: Response) {
   const diasParam = req.query.dias;
-  let dias = 30;
+  let dias = 60;
 
   if (diasParam !== undefined) {
     dias = Number(diasParam);
