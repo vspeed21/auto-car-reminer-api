@@ -28,16 +28,26 @@ async function checkAuth(req: Request, res: Response, next: NextFunction) {
   if (token) {
     try {
       const decoded = jwt.verify(token, environment.JWT_SECRET) as IDecoded;
-      console.log(decoded);
       const usuarioRef = await firebase.db.collection(FIREBASE_COLLECTION_NAMES.USUARIOS).where('uid', '==', decoded.user.uid).limit(1).get();
+
+      if (usuarioRef.empty) {
+        return res.status(401).json({
+          error: true,
+          code: 401,
+          message: 'Sesión inválida. Inicie sesión de nuevo',
+        });
+      }
+
       req.user = usuarioRef.docs[0].data();
       // console.log(req.user);
 
       return next();
     } catch (error: any) {
-      console.log(error);
-      res.status(500).json({
-        message: error.message,
+      const expirado = error?.name === 'TokenExpiredError';
+      return res.status(401).json({
+        error: true,
+        code: 401,
+        message: expirado ? 'Sesión expirada. Inicie sesión de nuevo' : 'Sesión inválida. Inicie sesión de nuevo',
       });
     }
   }

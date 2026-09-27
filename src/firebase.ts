@@ -5,6 +5,7 @@ import { applicationDefault, initializeApp } from 'firebase-admin/app';
 // Modulos a utilizar
 import { getFirestore } from 'firebase-admin/firestore';
 import { getMessaging } from 'firebase-admin/messaging';
+import { getAuth } from 'firebase-admin/auth';
 
 // Inicializar app
 initializeApp({
@@ -15,10 +16,12 @@ initializeApp({
 // Instancias de modulos
 const db = getFirestore();
 const messaging = getMessaging();
+const auth = getAuth();
 
 
 // exports
 export default {
   db,
   messaging,
+  auth,
 };
