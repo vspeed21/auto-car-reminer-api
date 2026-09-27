@@ -13,22 +13,22 @@ async function vehiculoDelUsuario(vehiculoId: string, uid: string) {
 
 export async function crearTanqueada(req: Request, res: Response) {
   // Campos de body para registrar una tanqueada
-  const { vehiculo, fecha, km, galones, costo, lleno, actualizar_kilometraje } = req.body;
+  const { vehiculo, fecha, km, litros, costo, lleno, actualizar_kilometraje } = req.body;
 
-  if (!vehiculo || !fecha || km === undefined || km === null || km === '' || galones === undefined || galones === null || galones === '') {
+  if (!vehiculo || !fecha || km === undefined || km === null || km === '' || litros === undefined || litros === null || litros === '') {
     res.status(404).json({
       error: true,
       code: 404,
-      message: 'Faltan datos requeridos como: vehiculo, fecha, km o galones'
+      message: 'Faltan datos requeridos como: vehiculo, fecha, km o litros'
     });
     return;
   }
 
-  if (!Number.isFinite(Number(km)) || Number(km) <= 0 || !Number.isFinite(Number(galones)) || Number(galones) <= 0) {
+  if (!Number.isFinite(Number(km)) || Number(km) <= 0 || !Number.isFinite(Number(litros)) || Number(litros) <= 0) {
     res.status(400).json({
       error: true,
       code: 400,
-      message: 'El km y los galones deben ser números mayores a 0'
+      message: 'El km y los litros deben ser números mayores a 0'
     });
     return;
   }
@@ -48,7 +48,7 @@ export async function crearTanqueada(req: Request, res: Response) {
       vehiculo,
       fecha: new Date(fecha),
       km: Number(km),
-      galones: Number(galones),
+      litros: Math.round(Number(litros) * 100) / 100,
       costo: costo === undefined || costo === null || costo === '' ? 0 : Number(costo),
       lleno: lleno !== false,
       uid: req.user.uid,
@@ -109,7 +109,7 @@ export async function getTanqueadas(req: Request, res: Response) {
       };
     });
 
-    // Orden local por fecha (desc) para no exigir índice compuesto.
+    // Orden local por fecha (desc)
     tanqueadas.sort((a: any, b: any) => {
       const fa = a.fecha?._seconds ?? 0;
       const fb = b.fecha?._seconds ?? 0;
