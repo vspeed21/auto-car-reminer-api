@@ -128,5 +128,22 @@
   { "nombre": "Arrizo 3", "marca": "Chery", "year": 2020 },
   { "nombre": "Arrizo 5", "marca": "Chery", "year": 2021 },
   { "nombre": "Arrizo 6", "marca": "Chery", "year": 2022 },
-  { "nombre": "QQ", "marca": "Chery", "year": 2019 }
+  { "nombre": "QQ", "marca": "Chery", "year": 2019 },
+  { "nombre": "CB125F", "marca": "Honda", "year": 2022, "tipo": "moto" },
+  { "nombre": "XR150L", "marca": "Honda", "year": 2023, "tipo": "moto" },
+  { "nombre": "CB190R", "marca": "Honda", "year": 2022, "tipo": "moto" },
+  { "nombre": "YBR125", "marca": "Yamaha", "year": 2023, "tipo": "moto" },
+  { "nombre": "FZN150", "marca": "Yamaha", "year": 2022, "tipo": "moto" },
+  { "nombre": "XTZ150", "marca": "Yamaha", "year": 2023, "tipo": "moto" },
+  { "nombre": "GN125", "marca": "Suzuki", "year": 2022, "tipo": "moto" },
+  { "nombre": "Gixxer 150", "marca": "Suzuki", "year": 2023, "tipo": "moto" },
+  { "nombre": "DR150", "marca": "Suzuki", "year": 2022, "tipo": "moto" },
+  { "nombre": "KLX150", "marca": "Kawasaki", "year": 2023, "tipo": "moto" },
+  { "nombre": "Ninja 300", "marca": "Kawasaki", "year": 2022, "tipo": "moto" },
+  { "nombre": "Duke 200", "marca": "KTM", "year": 2023, "tipo": "moto" },
+  { "nombre": "Duke 390", "marca": "KTM", "year": 2022, "tipo": "moto" },
+  { "nombre": "Pulsar NS200", "marca": "Bajaj", "year": 2023, "tipo": "moto" },
+  { "nombre": "Dominar 400", "marca": "Bajaj", "year": 2022, "tipo": "moto" },
+  { "nombre": "Hunk 150", "marca": "Hero", "year": 2022, "tipo": "moto" },
+  { "nombre": "XPulse 200", "marca": "Hero", "year": 2023, "tipo": "moto" }
 ]

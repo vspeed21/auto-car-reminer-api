@@ -3,180 +3,280 @@
     "nombre": "Cambio de aceite de motor",
     "intervaloFechaDias": 182,
     "intervaloKm": 5000,
-    "intervaloMilla": 3107
+    "intervaloMilla": 3107,
+    "aplicaA": "automovil"
   },
   {
     "nombre": "Cambio de filtro de aceite",
     "intervaloFechaDias": 365,
     "intervaloKm": 8000,
-    "intervaloMilla": 4971
+    "intervaloMilla": 4971,
+    "aplicaA": "automovil"
   },
   {
     "nombre": "Cambio de filtro de aire",
     "intervaloFechaDias": 365,
     "intervaloKm": 10000,
-    "intervaloMilla": 6214
+    "intervaloMilla": 6214,
+    "aplicaA": "automovil"
   },
   {
     "nombre": "Cambio de filtro de combustible",
     "intervaloFechaDias": 730,
     "intervaloKm": 20000,
-    "intervaloMilla": 12427
+    "intervaloMilla": 12427,
+    "aplicaA": "automovil"
   },
   {
     "nombre": "Cambio de filtro de cabina",
     "intervaloFechaDias": 365,
     "intervaloKm": 15000,
-    "intervaloMilla": 9321
+    "intervaloMilla": 9321,
+    "aplicaA": "automovil"
   },
   {
     "nombre": "Revisión y cambio de bujías",
     "intervaloFechaDias": 730,
     "intervaloKm": 30000,
-    "intervaloMilla": 18641
+    "intervaloMilla": 18641,
+    "aplicaA": "automovil"
   },
   {
     "nombre": "Cambio de líquido de frenos",
     "intervaloFechaDias": 730,
     "intervaloKm": 30000,
-    "intervaloMilla": 18641
+    "intervaloMilla": 18641,
+    "aplicaA": "automovil"
   },
   {
     "nombre": "Cambio de líquido de dirección hidráulica",
     "intervaloFechaDias": 1095,
     "intervaloKm": 40000,
-    "intervaloMilla": 24855
+    "intervaloMilla": 24855,
+    "aplicaA": "automovil"
   },
   {
     "nombre": "Cambio de líquido refrigerante",
     "intervaloFechaDias": 730,
     "intervaloKm": 40000,
-    "intervaloMilla": 24855
+    "intervaloMilla": 24855,
+    "aplicaA": "automovil"
   },
   {
     "nombre": "Alineación y balanceo",
     "intervaloFechaDias": 182,
     "intervaloKm": 10000,
-    "intervaloMilla": 6214
+    "intervaloMilla": 6214,
+    "aplicaA": "automovil"
   },
   {
     "nombre": "Rotación de llantas",
     "intervaloFechaDias": 182,
     "intervaloKm": 10000,
-    "intervaloMilla": 6214
+    "intervaloMilla": 6214,
+    "aplicaA": "automovil"
   },
   {
     "nombre": "Inspección de frenos (pastillas/discos)",
     "intervaloFechaDias": 182,
     "intervaloKm": 15000,
-    "intervaloMilla": 9321
+    "intervaloMilla": 9321,
+    "aplicaA": "automovil"
   },
   {
     "nombre": "Cambio de pastillas de freno",
     "intervaloFechaDias": 547,
     "intervaloKm": 25000,
-    "intervaloMilla": 15534
+    "intervaloMilla": 15534,
+    "aplicaA": "automovil"
   },
   {
     "nombre": "Cambio de discos de freno",
     "intervaloFechaDias": 1095,
     "intervaloKm": 50000,
-    "intervaloMilla": 31069
+    "intervaloMilla": 31069,
+    "aplicaA": "automovil"
   },
   {
     "nombre": "Revisión del sistema de suspensión",
     "intervaloFechaDias": 365,
     "intervaloKm": 20000,
-    "intervaloMilla": 12427
+    "intervaloMilla": 12427,
+    "aplicaA": "automovil"
   },
   {
     "nombre": "Cambio de amortiguadores",
     "intervaloFechaDias": 1460,
     "intervaloKm": 60000,
-    "intervaloMilla": 37282
+    "intervaloMilla": 37282,
+    "aplicaA": "automovil"
   },
   {
     "nombre": "Revisión del sistema de escape",
     "intervaloFechaDias": 365,
     "intervaloKm": 20000,
-    "intervaloMilla": 12427
+    "intervaloMilla": 12427,
+    "aplicaA": "automovil"
   },
   {
     "nombre": "Inspección del sistema eléctrico",
     "intervaloFechaDias": 365,
     "intervaloKm": 20000,
-    "intervaloMilla": 12427
+    "intervaloMilla": 12427,
+    "aplicaA": "automovil"
   },
   {
     "nombre": "Revisión del sistema de aire acondicionado",
     "intervaloFechaDias": 365,
     "intervaloKm": 15000,
-    "intervaloMilla": 9321
+    "intervaloMilla": 9321,
+    "aplicaA": "automovil"
   },
   {
     "nombre": "Revisión de correas (alternador, distribución)",
     "intervaloFechaDias": 730,
     "intervaloKm": 40000,
-    "intervaloMilla": 24855
+    "intervaloMilla": 24855,
+    "aplicaA": "automovil"
   },
   {
     "nombre": "Cambio de correa de distribución",
     "intervaloFechaDias": 1825,
     "intervaloKm": 80000,
-    "intervaloMilla": 49710
+    "intervaloMilla": 49710,
+    "aplicaA": "automovil"
   },
   {
     "nombre": "Cambio de batería",
     "intervaloFechaDias": 1095,
     "intervaloKm": 60000,
-    "intervaloMilla": 37282
+    "intervaloMilla": 37282,
+    "aplicaA": "automovil"
   },
   {
     "nombre": "Cambio de llantas",
     "intervaloFechaDias": 1825,
     "intervaloKm": 50000,
-    "intervaloMilla": 31069
+    "intervaloMilla": 31069,
+    "aplicaA": "automovil"
   },
   {
     "nombre": "Lavado de inyectores",
     "intervaloFechaDias": 730,
     "intervaloKm": 30000,
-    "intervaloMilla": 18641
+    "intervaloMilla": 18641,
+    "aplicaA": "automovil"
   },
   {
     "nombre": "Inspección de fugas de fluidos",
     "intervaloFechaDias": 182,
     "intervaloKm": 10000,
-    "intervaloMilla": 6214
+    "intervaloMilla": 6214,
+    "aplicaA": "automovil"
   },
   {
     "nombre": "Limpieza del radiador",
     "intervaloFechaDias": 730,
     "intervaloKm": 40000,
-    "intervaloMilla": 24855
+    "intervaloMilla": 24855,
+    "aplicaA": "automovil"
   },
   {
     "nombre": "Revisión de luces y bombillas",
     "intervaloFechaDias": 182,
     "intervaloKm": 10000,
-    "intervaloMilla": 6214
+    "intervaloMilla": 6214,
+    "aplicaA": "automovil"
   },
   {
     "nombre": "Revisión de sensores (oxígeno, temperatura)",
     "intervaloFechaDias": 730,
     "intervaloKm": 30000,
-    "intervaloMilla": 18641
+    "intervaloMilla": 18641,
+    "aplicaA": "automovil"
   },
   {
     "nombre": "Revisión del cuerpo de aceleración",
     "intervaloFechaDias": 365,
     "intervaloKm": 30000,
-    "intervaloMilla": 18641
+    "intervaloMilla": 18641,
+    "aplicaA": "automovil"
   },
   {
     "nombre": "Revisión del sistema de transmisión",
     "intervaloFechaDias": 730,
     "intervaloKm": 40000,
-    "intervaloMilla": 24855
+    "intervaloMilla": 24855,
+    "aplicaA": "automovil"
+  },
+  {
+    "nombre": "Cambio de aceite de motor",
+    "intervaloFechaDias": 90,
+    "intervaloKm": 2000,
+    "intervaloMilla": 1243,
+    "aplicaA": "moto"
+  },
+  {
+    "nombre": "Lubricación de cadena",
+    "intervaloFechaDias": 30,
+    "intervaloKm": 500,
+    "intervaloMilla": 311,
+    "aplicaA": "moto"
+  },
+  {
+    "nombre": "Ajuste de tensión de cadena",
+    "intervaloFechaDias": 60,
+    "intervaloKm": 1000,
+    "intervaloMilla": 621,
+    "aplicaA": "moto"
+  },
+  {
+    "nombre": "Cambio de filtro de aceite",
+    "intervaloFechaDias": 180,
+    "intervaloKm": 4000,
+    "intervaloMilla": 2485,
+    "aplicaA": "moto"
+  },
+  {
+    "nombre": "Cambio de filtro de aire",
+    "intervaloFechaDias": 180,
+    "intervaloKm": 6000,
+    "intervaloMilla": 3728,
+    "aplicaA": "moto"
+  },
+  {
+    "nombre": "Revisión y cambio de bujías",
+    "intervaloFechaDias": 365,
+    "intervaloKm": 8000,
+    "intervaloMilla": 4971,
+    "aplicaA": "moto"
+  },
+  {
+    "nombre": "Cambio de pastillas de freno",
+    "intervaloFechaDias": 365,
+    "intervaloKm": 10000,
+    "intervaloMilla": 6214,
+    "aplicaA": "moto"
+  },
+  {
+    "nombre": "Cambio de líquido de frenos",
+    "intervaloFechaDias": 730,
+    "intervaloKm": 12000,
+    "intervaloMilla": 7457,
+    "aplicaA": "moto"
+  },
+  {
+    "nombre": "Cambio de llantas",
+    "intervaloFechaDias": 730,
+    "intervaloKm": 15000,
+    "intervaloMilla": 9321,
+    "aplicaA": "moto"
+  },
+  {
+    "nombre": "Calibración de válvulas",
+    "intervaloFechaDias": 365,
+    "intervaloKm": 12000,
+    "intervaloMilla": 7457,
+    "aplicaA": "moto"
   }
 ]

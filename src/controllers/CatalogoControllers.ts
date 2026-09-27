@@ -4,6 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import firebase from '../firebase';
 import { FIREBASE_COLLECTION_NAMES } from '../constants';
+import { tipoModelo } from './ModelosControllers';
 
 function leerJson(nombreArchivo: string): any[] | null {
   const candidatos = [
@@ -74,7 +75,7 @@ export async function seedCatalogo(req: Request, res: Response) {
         continue;
       }
 
-      const data: any = { nombre, marcaId };
+      const data: any = { nombre, marcaId, tipo: tipoModelo(item) };
       if (item.year !== undefined && item.year !== null && item.year !== '') {
         data.year = Number(item.year);
       }
