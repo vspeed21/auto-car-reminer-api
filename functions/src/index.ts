@@ -35,6 +35,76 @@ function fechaToDate(fecha: unknown): Date | null {
   }
 }
 
+function hoyTegucigalpa(): Date {
+  const ahoraTeg = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Tegucigalpa' }));
+  return inicioDelDia(ahoraTeg);
+}
+
+function textoRecordatorio(m: any, placa: string | undefined, dias: number): string {
+  const vehiculoTxt = placa ? ` (${placa})` : '';
+  if (dias < 0) return `Vencido hace ${Math.abs(dias)} ${Math.abs(dias) === 1 ? 'día' : 'días'}: ${m.nombre}${vehiculoTxt}.`;
+  if (dias === 0) return `Vence hoy: ${m.nombre}${vehiculoTxt}.`;
+  return `Vence en ${dias} ${dias === 1 ? 'día' : 'días'}: ${m.nombre}${vehiculoTxt}.`;
+}
+
+/**
+ * Envía push por cada candidato dentro del rango (vencidos siempre +
+ * hasta maxDias a futuro). Lógica compartida entre la diaria y la semanal:
+ * compara Timestamps reales (nunca texto) y lee el token de `token`
+ * con respaldo a `fcmToken`.
+ */
+async function enviarLoteRecordatorios(
+  snapshot: FirebaseFirestore.QuerySnapshot,
+  hoy: Date,
+  maxDias: number,
+  etiqueta: string
+): Promise<void> {
+  if (snapshot.empty) {
+    console.log(`Sin candidatos para recordatorios ${etiqueta}.`);
+    return;
+  }
+
+  // Vehículos involucrados (una lectura por ID único).
+  const vehiculoIds = [...new Set(
+    snapshot.docs.map(doc => doc.data().vehiculo).filter(Boolean)
+  )];
+  const vehiculosPorId: Record<string, { placa?: string; marca?: string; modelo?: string }> = {};
+  await Promise.all(vehiculoIds.map(async (id: string) => {
+    const v = await db.collection('vehiculos').doc(id).get();
+    if (v.exists) vehiculosPorId[id] = v.data() as { placa?: string; marca?: string; modelo?: string };
+  }));
+
+  let enviadas = 0;
+  const envios = snapshot.docs.map(async (doc) => {
+    const m = doc.data();
+    const fecha = fechaToDate(m.fecha_recordatorio);
+    if (!fecha) return;
+
+    const dias = Math.round((inicioDelDia(fecha).getTime() - hoy.getTime()) / 86400000);
+    if (dias > maxDias) return;
+    if (!m.uid) return;
+
+    const userDoc = await db.collection('usuarios').doc(m.uid).get();
+    const pushToken = userDoc.data()?.token || userDoc.data()?.fcmToken;
+    if (!pushToken) return;
+
+    const v = m.vehiculo ? vehiculosPorId[m.vehiculo] : undefined;
+
+    await admin.messaging().send({
+      token: pushToken,
+      notification: {
+        title: '¡Recordatorio de Mantenimiento!',
+        body: textoRecordatorio(m, v?.placa, dias),
+      },
+      data: { mantenimientoId: doc.id },
+    });
+    enviadas++;
+  });
+
+  await Promise.all(envios);
+  console.log(`Recordatorios ${etiqueta} enviados: ${enviadas} de ${snapshot.size} candidatos.`);
+}
+
 /**
  * Martes y jueves 10:00 AM avisa mantenimientos vencidos
  * y por vencer en 7 días o menos. Se reenvía en cada ejecución mientras
@@ -47,69 +117,16 @@ export const recordarMantenimientosSemanales = onSchedule(
   },
   async () => {
     try {
-      const ahoraTeg = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Tegucigalpa' }));
-      const hoy = inicioDelDia(ahoraTeg);
+      const hoy = hoyTegucigalpa();
       const limite = new Date(hoy);
       limite.setDate(limite.getDate() + 7);
 
-      // Rango en un solo campo
+      // Rango en un solo campo (sin índice compuesto)
       const snapshot = await db.collection('mantenimientos')
         .where('fecha_recordatorio', '<=', limite)
         .get();
 
-      if (snapshot.empty) {
-        console.log('Sin mantenimientos próximos o vencidos.');
-        return;
-      }
-
-      // Vehículos involucrados (una lectura por ID único).
-      const vehiculoIds = [...new Set(
-        snapshot.docs.map(doc => doc.data().vehiculo).filter(Boolean)
-      )];
-      const vehiculosPorId: Record<string, { placa?: string; marca?: string; modelo?: string }> = {};
-      await Promise.all(vehiculoIds.map(async (id: string) => {
-        const v = await db.collection('vehiculos').doc(id).get();
-        if (v.exists) vehiculosPorId[id] = v.data() as { placa?: string; marca?: string; modelo?: string };
-      }));
-
-      let enviadas = 0;
-      const envios = snapshot.docs.map(async (doc) => {
-        const m = doc.data();
-        const fecha = fechaToDate(m.fecha_recordatorio);
-        if (!fecha) return;
-
-        const dias = Math.round((inicioDelDia(fecha).getTime() - hoy.getTime()) / 86400000);
-        // Solo vencidos o por vencer en 7 días o menos.
-        if (dias > 7) return;
-        if (!m.uid) return;
-
-        const userDoc = await db.collection('usuarios').doc(m.uid).get();
-        // El token push se guarda en `token` (PATCH /usuarios/token); respaldo a `fcmToken`.
-        const pushToken = userDoc.data()?.token || userDoc.data()?.fcmToken;
-        if (!pushToken) return;
-
-        const v = m.vehiculo ? vehiculosPorId[m.vehiculo] : undefined;
-        const vehiculoTxt = v?.placa ? ` (${v.placa})` : '';
-        const cuerpo = dias < 0
-          ? `Vencido hace ${Math.abs(dias)} ${Math.abs(dias) === 1 ? 'día' : 'días'}: ${m.nombre}${vehiculoTxt}.`
-          : dias === 0
-            ? `Vence hoy: ${m.nombre}${vehiculoTxt}.`
-            : `Vence en ${dias} ${dias === 1 ? 'día' : 'días'}: ${m.nombre}${vehiculoTxt}.`;
-
-        await admin.messaging().send({
-          token: pushToken,
-          notification: {
-            title: '¡Recordatorio de Mantenimiento!',
-            body: cuerpo,
-          },
-          data: { mantenimientoId: doc.id },
-        });
-        enviadas++;
-      });
-
-      await Promise.all(envios);
-      console.log(`Recordatorios semanales enviados: ${enviadas} de ${snapshot.size} candidatos.`);
-
+      await enviarLoteRecordatorios(snapshot, hoy, 7, 'semanales');
     } catch (error) {
       console.error('Error en recordarMantenimientosSemanales:', error);
     }
@@ -123,43 +140,18 @@ export const enviarRecordatoriosMantenimiento = onSchedule(
   },
   async () => {
     try {
-      // 1. Obtener la fecha de hoy
-      const today = new Date().toISOString().split('T')[0];
+      const hoy = hoyTegucigalpa();
+      const finDeHoy = new Date(hoy);
+      finDeHoy.setHours(23, 59, 59, 999);
 
-      // 2. Buscar mantenimientos de hoy
-      const mantenimientosSnapshot = await db.collection('mantenimientos')
-        .where('fecha_recordatorio', '==', today)
+      // Rango en un solo campo con Timestamps reales (nunca texto)
+      // y día calculado en hora de Tegucigalpa.
+      const snapshot = await db.collection('mantenimientos')
+        .where('fecha_recordatorio', '<=', finDeHoy)
         .get();
 
-      if (mantenimientosSnapshot.empty) {
-        console.log('No hay recordatorios para hoy.');
-        return;
-      }
-
-      // 3. Procesar y enviar
-      const promesasNotificaciones = mantenimientosSnapshot.docs.map(async (doc) => {
-        const mantenimiento = doc.data();
-
-        const userDoc = await db.collection('usuarios').doc(mantenimiento.uid).get();
-        const fcmToken = userDoc.data()?.fcmToken;
-
-        if (!fcmToken) return;
-
-        const message = {
-          token: fcmToken,
-          notification: {
-            title: '¡Recordatorio de Mantenimiento!',
-            body: `Tu vehículo necesita: ${mantenimiento.nombre} antes del ${mantenimiento.fecha_recordatorio}.`,
-          },
-          data: { mantenimientoId: doc.id }
-        };
-
-        await admin.messaging().send(message);
-        await doc.ref.update({ notificacionEnviada: true });
-      });
-
-      await Promise.all(promesasNotificaciones);
-      console.log(`Se enviaron ${mantenimientosSnapshot.size} notificaciones.`);
+      // Vencidos + vencen hoy (maxDias = 0).
+      await enviarLoteRecordatorios(snapshot, hoy, 0, 'diarios');
 
     } catch (error) {
       console.error('Error en la función de recordatorios:', error);
