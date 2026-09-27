@@ -11,5 +11,10 @@
   { "nombre": "Subaru" },
   { "nombre": "Suzuki" },
   { "nombre": "Renault" },
-  { "nombre": "Chery" }
+  { "nombre": "Chery" },
+  { "nombre": "Yamaha" },
+  { "nombre": "Kawasaki" },
+  { "nombre": "KTM" },
+  { "nombre": "Bajaj" },
+  { "nombre": "Hero" }
 ]

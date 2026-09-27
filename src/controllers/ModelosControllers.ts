@@ -15,7 +15,18 @@ function validarModelo(body: any): string | null {
       return 'El campo year debe ser un número válido';
     }
   }
+  if (body.tipo !== undefined && body.tipo !== null && body.tipo !== '') {
+    const t = String(body.tipo).toLowerCase();
+    if (t !== 'automovil' && t !== 'moto') {
+      return 'El campo tipo debe ser automovil o moto';
+    }
+  }
   return null;
+}
+
+/** Normaliza el tipo de vehículo: automovil por defecto, moto como alternativa. */
+export function tipoModelo(body: any): string {
+  return String(body?.tipo || 'automovil').toLowerCase() === 'moto' ? 'moto' : 'automovil';
 }
 
 async function existeMarca(marcaId: string): Promise<boolean> {
@@ -36,7 +47,7 @@ async function conNombreMarca(modelos: any[]) {
 export async function getModelos(req: Request, res: Response) {
   try {
     const instance = firebase.db.collection(FIREBASE_COLLECTION_NAMES.MODELOS);
-    const { marcaId } = req.query;
+    const { marcaId, tipo } = req.query;
 
     const snapshot = marcaId
       ? await instance.where('marcaId', '==', String(marcaId)).get()
@@ -48,6 +59,12 @@ export async function getModelos(req: Request, res: Response) {
         ...doc.data(),
       };
     });
+
+    // Filtro opcional por tipo en memoria (sin índices). Sin docs viejos sin tipo cuentan como automovil.
+    if (typeof tipo === 'string' && ['automovil', 'moto'].includes(tipo.toLowerCase())) {
+      const t = tipo.toLowerCase();
+      modelos = modelos.filter((m: any) => (m.tipo || 'automovil') === t);
+    }
 
     // Orden alfabético local para no exigir índices.
     modelos.sort((a: any, b: any) => String(a.nombre || '').localeCompare(String(b.nombre || '')));
@@ -142,6 +159,7 @@ export async function crearModelo(req: Request, res: Response) {
     const data: any = {
       nombre: String(req.body.nombre).trim(),
       marcaId,
+      tipo: tipoModelo(req.body),
     };
     if (req.body.year !== undefined && req.body.year !== null && req.body.year !== '') {
       data.year = Number(req.body.year);
@@ -228,6 +246,7 @@ export async function actualizarModelo(req: Request, res: Response) {
     const data: any = {
       nombre: String(req.body.nombre).trim(),
       marcaId,
+      tipo: tipoModelo(req.body),
     };
     if (req.body.year !== undefined && req.body.year !== null && req.body.year !== '') {
       data.year = Number(req.body.year);

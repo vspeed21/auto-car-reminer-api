@@ -152,28 +152,45 @@ export async function seedMantenimientosLista(req: Request, res: Response) {
     }
 
     const instance = firebase.db.collection(FIREBASE_COLLECTION_NAMES.MANTENIMIENTOS_LISTA);
+    const aplicaAValidos = ['automovil', 'moto'];
     let creados = 0;
     let actualizados = 0;
+    let backfill = 0;
+
+    // Backfill: documentos existentes sin aplicaA se marcan automovil
+    // con update en su lugar (se conserva el ID, nada se borra).
+    const sinAlcance = await instance.get();
+    for (const doc of sinAlcance.docs) {
+      if (doc.data().aplicaA === undefined || doc.data().aplicaA === null || doc.data().aplicaA === '') {
+        await instance.doc(doc.id).update({ aplicaA: 'automovil' });
+        backfill++;
+      }
+    }
 
     for (const item of lista) {
       if (!item || !item.nombre) continue;
 
-      const existente = await instance.where('nombre', '==', item.nombre).limit(1).get();
+      const aplicaA = aplicaAValidos.includes(String(item.aplicaA || '').toLowerCase())
+        ? String(item.aplicaA).toLowerCase()
+        : 'automovil';
 
-      if (existente.empty) {
-        await instance.add({
-          nombre: item.nombre,
-          intervaloFechaDias: item.intervaloFechaDias,
-          intervaloKm: item.intervaloKm,
-          intervaloMilla: item.intervaloMilla,
-        });
+      const data = {
+        nombre: String(item.nombre).trim(),
+        intervaloFechaDias: Number(item.intervaloFechaDias) || 0,
+        intervaloKm: Number(item.intervaloKm) || 0,
+        intervaloMilla: Number(item.intervaloMilla) || 0,
+        aplicaA,
+      };
+
+      // Clave de upsert: (nombre + aplicaA), para no chocar homónimos de otro tipo.
+      const candidatos = await instance.where('nombre', '==', data.nombre).get();
+      const mismo = candidatos.docs.find(doc => (doc.data().aplicaA || 'automovil') === aplicaA);
+
+      if (!mismo) {
+        await instance.add(data);
         creados++;
       } else {
-        await instance.doc(existente.docs[0].id).update({
-          intervaloFechaDias: item.intervaloFechaDias,
-          intervaloKm: item.intervaloKm,
-          intervaloMilla: item.intervaloMilla,
-        });
+        await instance.doc(mismo.id).update(data);
         actualizados++;
       }
     }
@@ -181,11 +198,12 @@ export async function seedMantenimientosLista(req: Request, res: Response) {
     res.status(200).json({
       error: false,
       code: 200,
-      message: `Catálogo sincronizado: ${creados} creados, ${actualizados} actualizados`,
+      message: `Catálogo sincronizado: ${creados} creados, ${actualizados} actualizados, ${backfill} con alcance asignado`,
       data: {
         total: lista.length,
         creados,
         actualizados,
+        backfill,
       },
     });
 
@@ -204,6 +222,10 @@ function validarItemLista(item: any): string | null {
   if (!item || typeof item.nombre !== 'string' || !item.nombre.trim()) {
     return 'El campo nombre es obligatorio';
   }
+  if (item.aplicaA !== undefined && item.aplicaA !== null && item.aplicaA !== ''
+    && !['automovil', 'moto'].includes(String(item.aplicaA).toLowerCase())) {
+    return 'El campo aplicaA debe ser automovil o moto';
+  }
   const numericos = ['intervaloFechaDias', 'intervaloKm', 'intervaloMilla'] as const;
   for (const campo of numericos) {
     if (item[campo] === undefined || item[campo] === null || item[campo] === '') {
@@ -217,11 +239,13 @@ function validarItemLista(item: any): string | null {
 }
 
 function normalizarItemLista(item: any) {
+  const aplicaA = String(item.aplicaA || 'automovil').toLowerCase();
   return {
     nombre: String(item.nombre).trim(),
     intervaloFechaDias: Number(item.intervaloFechaDias),
     intervaloKm: Number(item.intervaloKm),
     intervaloMilla: Number(item.intervaloMilla),
+    aplicaA: aplicaA === 'moto' ? 'moto' : 'automovil',
   };
 }
 
@@ -229,12 +253,20 @@ export async function getMantenimientosLista(req: Request, res: Response) {
   try {
     const snapshot = await firebase.db.collection(FIREBASE_COLLECTION_NAMES.MANTENIMIENTOS_LISTA).get();
 
-    const lista = snapshot.docs.map(doc => {
-      return {
-        id: doc.id,
-        ...doc.data(),
-      };
-    });
+    const { aplicaA } = req.query;
+    const filtro = typeof aplicaA === 'string' && ['automovil', 'moto'].includes(aplicaA.toLowerCase())
+      ? aplicaA.toLowerCase()
+      : null;
+
+    const lista = snapshot.docs
+      .map(doc => {
+        return {
+          id: doc.id,
+          ...doc.data(),
+        };
+      })
+      // Sin parámetro trae todo (compatible); con ?aplicaA= filtra en memoria.
+      .filter((item: any) => !filtro || (item.aplicaA || 'automovil') === filtro);
 
     // Orden alfabético local para no exigir índices.
     lista.sort((a: any, b: any) => String(a.nombre || '').localeCompare(String(b.nombre || '')));
@@ -317,12 +349,13 @@ export async function crearMantenimientoLista(req: Request, res: Response) {
     const instance = firebase.db.collection(FIREBASE_COLLECTION_NAMES.MANTENIMIENTOS_LISTA);
     const data = normalizarItemLista(req.body);
 
-    const duplicado = await instance.where('nombre', '==', data.nombre).limit(1).get();
-    if (!duplicado.empty) {
+    // Duplicado = mismo nombre para el mismo tipo de vehículo.
+    const candidatos = await instance.where('nombre', '==', data.nombre).get();
+    if (candidatos.docs.some(doc => (doc.data().aplicaA || 'automovil') === data.aplicaA)) {
       res.status(409).json({
         error: true,
         code: 409,
-        message: 'Ya existe un mantenimiento en el catálogo con ese nombre',
+        message: 'Ya existe un mantenimiento en el catálogo con ese nombre para ese tipo de vehículo',
       });
       return;
     }
@@ -386,12 +419,12 @@ export async function actualizarMantenimientoLista(req: Request, res: Response) 
       return;
     }
 
-    const duplicado = await instance.where('nombre', '==', data.nombre).limit(1).get();
-    if (!duplicado.empty && duplicado.docs[0].id !== id) {
+    const candidatos = await instance.where('nombre', '==', data.nombre).get();
+    if (candidatos.docs.some(doc => doc.id !== id && (doc.data().aplicaA || 'automovil') === data.aplicaA)) {
       res.status(409).json({
         error: true,
         code: 409,
-        message: 'Ya existe otro mantenimiento en el catálogo con ese nombre',
+        message: 'Ya existe otro mantenimiento en el catálogo con ese nombre para ese tipo de vehículo',
       });
       return;
     }
