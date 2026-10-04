@@ -6,8 +6,11 @@
   "scripts": {
     "start": "node build/index.js",
     "dev": "ts-node-dev --files src/index.ts --watch",
-    "build": "npm install && tsc",
-    "lint": "eslint ."
+    "build": "tsc",
+    "lint": "eslint .",
+    "deploy": "npm run build && firebase deploy --only functions,apphosting",
+    "deploy:functions": "firebase deploy --only functions",
+    "deploy:api": "npm run build && firebase deploy --only apphosting"
   },
   "author": "Victor Torres tikodev",
   "license": "ISC",

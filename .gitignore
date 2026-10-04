@@ -1,6 +1,10 @@
 # Dependency directories
 node_modules/
 
+# Build output
+build/
+functions/lib/
+
 # dotenv enviroment variables files
 .env
 *.local
