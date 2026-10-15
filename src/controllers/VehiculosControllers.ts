@@ -267,3 +267,102 @@ export async function eliminarVehiculo(req: Request, res: Response) {
   }
 
 }
+
+
+export async function sumarKilometraje(req: Request, res: Response) {
+  // id del vehiculo a sumar
+  const { id } = req.params;
+
+  if (!id || id.toString().length < 5) {
+    res.status(404).json({
+      error: true,
+      code: 404,
+      message: 'Envie un id válido',
+    });
+    return;
+  }
+
+  // km recorridos y id único del viaje (generado en el telefono al iniciar el viaje)
+  const { km, viajeId } = req.body;
+
+  if (km === undefined || km === null || Number(km) <= 0) {
+    res.status(400).json({
+      error: true,
+      code: 400,
+      message: 'Envie un kilometraje válido mayor a 0',
+    });
+    return;
+  }
+
+  if (!viajeId || String(viajeId).trim() === '') {
+    res.status(400).json({
+      error: true,
+      code: 400,
+      message: 'Envie un id de viaje válido',
+    });
+    return;
+  }
+
+  try {
+    const instance = firebase.db.collection(FIREBASE_COLLECTION_NAMES.VEHICULOS);
+    const query = instance.where('id', '==', id);
+    const carSnap = await query.get();
+
+    // Si NO tiene registros el array es porque NO esta registrado
+    if (carSnap.docs.length === 0) {
+      res.status(404).json({
+        error: true,
+        code: 404,
+        message: 'El vehículo no ha sido registrado. Verifique.',
+      });
+      return;
+    }
+
+    const vehiculo = carSnap.docs[0].data();
+
+    // El vehículo solo lo puede modificar su propietario
+    if (vehiculo.uid !== req.user.uid) {
+      res.status(403).json({
+        error: true,
+        code: 403,
+        message: 'No tienes permiso para modificar este vehículo',
+      });
+      return;
+    }
+
+    // Evitar idempotencia: si este viaje ya se sumó, responder éxito sin duplicar.
+    if (vehiculo.ultimoViajeId === String(viajeId)) {
+      res.status(200).json({
+        error: false,
+        code: 200,
+        message: 'Viaje ya registrado',
+        data: { kilometraje: vehiculo.kilometraje },
+      });
+      return;
+    }
+
+    const nuevoKilometraje = Math.round((Number(vehiculo.kilometraje) + Number(km)) * 10) / 10;
+
+    await instance.doc(id).update({
+      kilometraje: nuevoKilometraje,
+      ultimoViajeId: String(viajeId),
+      updatedAt: new Date(),
+    });
+
+    res.status(200).json({
+      error: false,
+      code: 200,
+      message: 'Kilometraje sumado correctamente',
+      data: { kilometraje: nuevoKilometraje },
+    });
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      error: true,
+      code: 500,
+      message: 'Ocurrio un error al sumar el kilometraje: ' + error,
+    });
+  }
+
+}
