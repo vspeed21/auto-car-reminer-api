@@ -4,7 +4,7 @@ import { FIREBASE_COLLECTION_NAMES } from '../constants';
 
 export async function agregarVehiculo(req: Request, res: Response) {
   // Campos de body para crear un vehiculo
-  const { marca, modelo, year, placa, kilometraje, tipo } = req.body;
+  const { marca, modelo, year, placa, kilometraje, tipo, cilindraje } = req.body;
 
   // Validar que todos los campos requeridos hayan sido enviados
   if (!marca || !modelo || !year || !placa || !kilometraje) {
@@ -28,6 +28,18 @@ export async function agregarVehiculo(req: Request, res: Response) {
     });
     return;
   }
+
+  // Veriifcar si el tipo de cilindraje va en el body si es moto
+  if (tipo === 'moto' && !cilindraje) {
+    res.status(404).json({
+      error: true,
+      code: 404,
+      message: 'Ingrese el cilindraje de la moto'
+    });
+    return;
+  }
+
+  // ! Verificar el tipo de cilindraje permitidos o reales (50cc, 100, 150cc 250cc etc...)
 
   try {
     // Validar que el vehiculo NO haya sido registrado anteriormente
@@ -66,6 +78,7 @@ export async function agregarVehiculo(req: Request, res: Response) {
       placa,
       kilometraje,
       tipo: tipoVehiculo,
+      cilindraje,
       uid: req.user.uid,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -143,6 +156,9 @@ export async function updateVehiculo(req: Request, res: Response) {
   // id del vehiculo a editar
   const { id } = req.params;
 
+  // Campos de body para crear un vehiculo
+  const { tipo, marca, modelo, year, placa, kilometraje, cilindraje } = req.body;
+
   if (id.toString().length < 5) {
     res.status(404).json({
       error: true,
@@ -152,15 +168,21 @@ export async function updateVehiculo(req: Request, res: Response) {
     return;
   }
 
-  // Campos de body para crear un vehiculo
-  const { marca, modelo, year, placa, kilometraje } = req.body;
-
   // Validar que todos los campos requeridos hayan sido enviados
   if (!marca || !modelo || !year || !placa || !kilometraje) {
     res.status(404).json({
       error: true,
       code: 404,
       message: 'Faltan datos requeridos como: marca, modelo, year, placa o kilometraje',
+    });
+    return;
+  }
+
+  if (tipo === 'moto' && !cilindraje) {
+    res.status(404).json({
+      error: true,
+      code: 404,
+      message: 'Ingrese el cilindraje de la moto'
     });
     return;
   }
@@ -194,6 +216,7 @@ export async function updateVehiculo(req: Request, res: Response) {
 
 
     await instance.doc(id).update({
+      cilindraje,
       year,
       kilometraje,
       updatedAt: new Date(),
