@@ -1,5 +1,6 @@
 import express, { Application } from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
 
 const app: Application = express();
 
@@ -16,8 +17,13 @@ import CombustibleRoutes from './routes/CombustibleRoutes';
 
 
 // Configuracion inicial
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
+app.disable('x-powered-by');
+// Cloud Run / App Hosting llega por un unico proxy. No usar `true`: permite
+// falsear X-Forwarded-For y saltarse el rate limit.
+app.set('trust proxy', 1);
+app.use(helmet());
+app.use(express.urlencoded({ extended: false, limit: '100kb' }));
+app.use(express.json({ limit: '100kb' }));
 app.use(cors());
 
 // Routes

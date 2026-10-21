@@ -5,52 +5,13 @@ import path from 'path';
 import firebase from '../firebase';
 import { FIREBASE_COLLECTION_NAMES } from '../constants';
 
-export async function crearMantenimiento(req: Request, res: Response) {
-
-  try {
-    const instance = firebase.db.collection('mantenimientosVehiculo');
-
-    const data: any[] = [];
-
-    for (const item of data) {
-      await instance.add(item);
-      console.log(`Añadido: ${item.nombre}`);
-    }
-    console.log('¡Carga completada!');
-
-    const mantenimientoAgregado = await instance.add({
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
-
-    // Agregamos al documento recien creado el id como campo adicional (util para consultas en un futuro por ID).
-    await instance.doc(mantenimientoAgregado.id).update({
-      id: mantenimientoAgregado.id,
-    });
-
-    res.status(200).json({
-      error: false,
-      code: 200,
-      message: 'Mantenimientos creado correctamente',
-    });
-
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      error: true,
-      code: 500,
-      message: 'Ocurrio un error al guardar el mantenimiento: ' + error,
-    });
-  }
-
-}
 
 export async function crearMantenimientoVehiculo(req: Request, res: Response) {
   // Campos de body para crear un vehiculo
   const { actualizar_kilometraje, tipo, nombre, fecha, kilometraje_actual, fecha_recordatorio, km_recordatorio, tipo_repuestos, costo_repuestos, costo_manoobra, comprado, manoobra, vehiculo } = req.body;
 
   // Validar que todos los campos requeridos hayan sido enviados
-  if (!tipo || !nombre || !fecha || !kilometraje_actual || !fecha_recordatorio) {
+  if (!tipo || !nombre || !fecha || !kilometraje_actual || !fecha_recordatorio || !vehiculo) {
     res.status(404).json({
       error: true,
       code: 404,
@@ -62,13 +23,24 @@ export async function crearMantenimientoVehiculo(req: Request, res: Response) {
   try {
     const instance = firebase.db.collection(FIREBASE_COLLECTION_NAMES.MANTENIMIENTOS);
     const carInstance = firebase.db.collection(FIREBASE_COLLECTION_NAMES.VEHICULOS);
+    const vehiculoDoc = await carInstance.doc(vehiculo).get();
+
+    // Validar que el vehiculo al que se intenta crear mantenimiento le pertenezca al usuario que hace la accion
+    if (vehiculoDoc.data()?.uid !== req.user.uid) {
+      res.status(404).json({
+        error: true,
+        code: 404,
+        message: 'El vehiculo no fue encontrado'
+      });
+      return;
+    }
 
     // El KM del vehículo solo sube: si el registrado es menor o igual al actual,
     // se conserva el actual. El mantenimiento siempre se guarda con su KM.
     let kilometrajeActualizado = false;
     if (actualizar_kilometraje && vehiculo) {
-      const vehiculoDoc = await carInstance.doc(vehiculo).get();
       const kmActualVehiculo = Number(vehiculoDoc.data()?.kilometraje);
+
       if (!vehiculoDoc.exists || !Number.isFinite(kmActualVehiculo) || Number(kilometraje_actual) > kmActualVehiculo) {
         await carInstance.doc(vehiculo).update({
           kilometraje: kilometraje_actual,
@@ -218,239 +190,6 @@ export async function seedMantenimientosLista(req: Request, res: Response) {
 
 }
 
-function validarItemLista(item: any): string | null {
-  if (!item || typeof item.nombre !== 'string' || !item.nombre.trim()) {
-    return 'El campo nombre es obligatorio';
-  }
-  if (item.aplicaA !== undefined && item.aplicaA !== null && item.aplicaA !== ''
-    && !['automovil', 'moto'].includes(String(item.aplicaA).toLowerCase())) {
-    return 'El campo aplicaA debe ser automovil o moto';
-  }
-  const numericos = ['intervaloFechaDias', 'intervaloKm', 'intervaloMilla'] as const;
-  for (const campo of numericos) {
-    if (item[campo] === undefined || item[campo] === null || item[campo] === '') {
-      return `El campo ${campo} es obligatorio`;
-    }
-    if (!Number.isFinite(Number(item[campo])) || Number(item[campo]) < 0) {
-      return `El campo ${campo} debe ser un número mayor o igual a 0`;
-    }
-  }
-  return null;
-}
-
-function normalizarItemLista(item: any) {
-  const aplicaA = String(item.aplicaA || 'automovil').toLowerCase();
-  return {
-    nombre: String(item.nombre).trim(),
-    intervaloFechaDias: Number(item.intervaloFechaDias),
-    intervaloKm: Number(item.intervaloKm),
-    intervaloMilla: Number(item.intervaloMilla),
-    aplicaA: aplicaA === 'moto' ? 'moto' : 'automovil',
-  };
-}
-
-export async function getMantenimientosLista(req: Request, res: Response) {
-  try {
-    const snapshot = await firebase.db.collection(FIREBASE_COLLECTION_NAMES.MANTENIMIENTOS_LISTA).get();
-
-    const { aplicaA } = req.query;
-    const filtro = typeof aplicaA === 'string' && ['automovil', 'moto'].includes(aplicaA.toLowerCase())
-      ? aplicaA.toLowerCase()
-      : null;
-
-    const lista = snapshot.docs
-      .map(doc => {
-        return {
-          id: doc.id,
-          ...doc.data(),
-        };
-      })
-      // Sin parámetro trae todo (compatible); con ?aplicaA= filtra en memoria.
-      .filter((item: any) => !filtro || (item.aplicaA || 'automovil') === filtro);
-
-    // Orden alfabético local para no exigir índices.
-    lista.sort((a: any, b: any) => String(a.nombre || '').localeCompare(String(b.nombre || '')));
-
-    res.status(200).json({
-      error: false,
-      code: 200,
-      cantidad: snapshot.size,
-      message: 'Catálogo de mantenimientos obtenido correctamente',
-      data: lista,
-    });
-
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      error: true,
-      code: 500,
-      message: 'Ocurrio un error al obtener el catálogo: ' + error,
-    });
-  }
-}
-
-export async function getMantenimientoListaById(req: Request, res: Response) {
-  const { id } = req.params;
-
-  if (!id) {
-    res.status(404).json({
-      error: true,
-      code: 404,
-      message: 'Debe enviar un id válido',
-    });
-    return;
-  }
-
-  try {
-    const doc = await firebase.db.collection(FIREBASE_COLLECTION_NAMES.MANTENIMIENTOS_LISTA).doc(id).get();
-
-    if (!doc.exists) {
-      res.status(404).json({
-        error: true,
-        code: 404,
-        message: 'No se encontró un mantenimiento en el catálogo con el id proporcionado',
-      });
-      return;
-    }
-
-    res.status(200).json({
-      error: false,
-      code: 200,
-      message: 'Mantenimiento del catálogo obtenido correctamente',
-      data: {
-        id: doc.id,
-        ...doc.data(),
-      },
-    });
-
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      error: true,
-      code: 500,
-      message: 'Ocurrio un error al obtener el mantenimiento del catálogo: ' + error,
-    });
-  }
-}
-
-export async function crearMantenimientoLista(req: Request, res: Response) {
-  const errorValidacion = validarItemLista(req.body);
-
-  if (errorValidacion) {
-    res.status(400).json({
-      error: true,
-      code: 400,
-      message: errorValidacion,
-    });
-    return;
-  }
-
-  try {
-    const instance = firebase.db.collection(FIREBASE_COLLECTION_NAMES.MANTENIMIENTOS_LISTA);
-    const data = normalizarItemLista(req.body);
-
-    // Duplicado = mismo nombre para el mismo tipo de vehículo.
-    const candidatos = await instance.where('nombre', '==', data.nombre).get();
-    if (candidatos.docs.some(doc => (doc.data().aplicaA || 'automovil') === data.aplicaA)) {
-      res.status(409).json({
-        error: true,
-        code: 409,
-        message: 'Ya existe un mantenimiento en el catálogo con ese nombre para ese tipo de vehículo',
-      });
-      return;
-    }
-
-    const agregado = await instance.add(data);
-
-    res.status(201).json({
-      error: false,
-      code: 201,
-      message: 'Mantenimiento agregado al catálogo exitosamente',
-      data: {
-        id: agregado.id,
-        ...data,
-      },
-    });
-
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      error: true,
-      code: 500,
-      message: 'Ocurrio un error al crear el mantenimiento del catálogo: ' + error,
-    });
-  }
-}
-
-export async function actualizarMantenimientoLista(req: Request, res: Response) {
-  const { id } = req.params;
-
-  if (!id) {
-    res.status(404).json({
-      error: true,
-      code: 404,
-      message: 'Debe enviar un id válido',
-    });
-    return;
-  }
-
-  const errorValidacion = validarItemLista(req.body);
-
-  if (errorValidacion) {
-    res.status(400).json({
-      error: true,
-      code: 400,
-      message: errorValidacion,
-    });
-    return;
-  }
-
-  try {
-    const instance = firebase.db.collection(FIREBASE_COLLECTION_NAMES.MANTENIMIENTOS_LISTA);
-    const data = normalizarItemLista(req.body);
-
-    const doc = await instance.doc(id).get();
-    if (!doc.exists) {
-      res.status(404).json({
-        error: true,
-        code: 404,
-        message: 'No se encontró un mantenimiento en el catálogo con el id proporcionado',
-      });
-      return;
-    }
-
-    const candidatos = await instance.where('nombre', '==', data.nombre).get();
-    if (candidatos.docs.some(doc => doc.id !== id && (doc.data().aplicaA || 'automovil') === data.aplicaA)) {
-      res.status(409).json({
-        error: true,
-        code: 409,
-        message: 'Ya existe otro mantenimiento en el catálogo con ese nombre para ese tipo de vehículo',
-      });
-      return;
-    }
-
-    await instance.doc(id).update(data);
-
-    res.status(200).json({
-      error: false,
-      code: 200,
-      message: 'Mantenimiento del catálogo actualizado correctamente',
-      data: {
-        id,
-        ...data,
-      },
-    });
-
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      error: true,
-      code: 500,
-      message: 'Ocurrio un error al actualizar el mantenimiento del catálogo: ' + error,
-    });
-  }
-}
-
 export async function actualizarMantenimiento(req: Request, res: Response) {
   // id del mantenimiento a editar
   const { id } = req.params;
@@ -597,9 +336,12 @@ export async function eliminarMantenimiento(req: Request, res: Response) {
 }
 
 export async function getMisMantenimientos(req: Request, res: Response) {
+  const { vehiculoId } = req.params;
+
   try {
     const snapshot = await firebase.db.collection(FIREBASE_COLLECTION_NAMES.MANTENIMIENTOS)
       .where('uid', '==', req.user.uid)
+      .where('vehiculo', '==', vehiculoId.toString())
       .get();
 
     const mantenimientos = snapshot.docs.map(mantenimiento => {
@@ -631,56 +373,6 @@ export async function getMisMantenimientos(req: Request, res: Response) {
       code: 500,
       message: 'Ocurrio un error al obtener los mantenimientos: ' + error,
     });
-  }
-
-}
-
-export async function getMantenimientos(req: Request, res: Response) {
-  const { id } = req.params;
-
-  if (!id) {
-    res.status(404).json({
-      error: true,
-      code: 404,
-      message: 'Debe de enviar un id valido para obtener los mantenimientos del vehículo',
-    });
-    return;
-  }
-
-  try {
-    const instance = await firebase.db.collection(FIREBASE_COLLECTION_NAMES.MANTENIMIENTOS)
-      .where('vehiculo', '==', id)
-      .orderBy('createdAt', 'desc')
-      .get();
-
-    console.log(instance.docs, id);
-
-    if (instance.docs.length === 0) {
-      res.status(204).json({
-        error: true,
-        code: 204,
-        message: 'Este vehículo no tiene mantenimientos agregados. Añade uno',
-      });
-      return;
-    }
-
-    const mantenimientos = instance.docs.map(mantenimiento => {
-      return {
-        id: mantenimiento.id,
-        ...mantenimiento.data(),
-      };
-    });
-
-    res.status(200).json({
-      error: false,
-      code: 200,
-      cantidad: instance.docs.length,
-      message: 'Mantenimientos del vehículo obtenido correctamente',
-      data: mantenimientos,
-    });
-
-  } catch (error) {
-    console.log(error);
   }
 
 }
@@ -798,71 +490,6 @@ export async function eliminarVehiculo(req: Request, res: Response) {
       code: 500,
       message: 'Ocurrio un error al guardar el vehículo: ' + error,
     });
-  }
-
-}
-
-export async function obtenerMantenimientosProximos(req: Request, res: Response) {
-  const hoy = new Date();
-
-  const mesObjetivo = hoy.getMonth() + 1;
-  const anioObjetivo = hoy.getFullYear();
-
-  const fechaInicio = new Date(anioObjetivo, hoy.getMonth(), 1);
-
-  const fechaFin = new Date(anioObjetivo, mesObjetivo, 0, 23, 59, 59);
-
-  try {
-    const mantenimientosRef = firebase.db.collection('mantenimientos');
-    const query = mantenimientosRef.
-      where('fecha_recordatorio', '>=', fechaInicio).
-      where('fecha_recordatorio', '<=', fechaFin);
-
-    const querySnapshot = await query.get();
-
-    if (querySnapshot.size === 0) {
-      res.status(404).json({
-        msg: 'No hay mantenimientos proximos',
-        fechaInicio,
-        fechaFin,
-      });
-      return;
-    }
-
-    const mantenimientosPromises = querySnapshot.docs.map(async man => {
-      const mantenimiento = man.data();
-
-      // info del usuario
-      const usuario = await firebase.db.collection(FIREBASE_COLLECTION_NAMES.USUARIOS).where('uid', '==', man.data().uid).get();
-
-      await firebase.messaging.send({
-        notification: {
-          title: '¡Recordatorio de Mantenimiento!',
-          body: `Tu vehículo necesita: ${mantenimiento.nombre} antes del ${mantenimiento.fecha_recordatorio.toString()}.`,
-        },
-        token: usuario.docs[0].data().token,
-      });
-
-      await firebase.db.collection('recordatorios').add({
-        uid: man.data().uid,
-        title: '¡Recordatorio de Mantenimiento!',
-        body: `Tu vehículo necesita: ${mantenimiento.nombre} antes del ${mantenimiento.fecha_recordatorio.toString()}.`,
-        createdAt: new Date(),
-      });
-
-    });
-
-    // Ejecutar promesa para envio de notificaciones
-    await Promise.all(mantenimientosPromises);
-    console.log(`Se enviaron ${querySnapshot.size} notificaciones.`);
-
-    res.json({
-      message: 'Notificación Enviada',
-      mantenimientosPromises,
-    });
-  } catch (error) {
-    console.log(error);
-    res.json(error);
   }
 
 }

@@ -7,6 +7,26 @@ runConfig:
   # cpu: 1
   # memoryMiB: 512
 
+# Variables y secretos de produccion.
+# Crear el secreto antes de desplegar:
+#   firebase apphosting:secrets:set JWT_SECRET
+env:
+  - variable: NODE_ENV
+    value: production
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: JWT_SECRET
+    secret: JWT_SECRET
+    availability:
+      - RUNTIME
+  # UIDs autorizados para ejecutar los seeds (separados por coma).
+  # Sin ADMIN_UIDS definido, los seeds responden 403.
+  # - variable: ADMIN_UIDS
+  #   value: "uid1,uid2"
+  #   availability:
+  #     - RUNTIME
+
 # Environment variables and secrets.
 # env:
   # Configure environment variables.
