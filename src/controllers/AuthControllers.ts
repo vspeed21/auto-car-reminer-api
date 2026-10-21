@@ -62,7 +62,10 @@ export async function SignUp(req: Request, res: Response) {
       error: false,
       code: 201,
       message: 'Usuario creado exitosamente',
-      usuario,
+      usuario: {
+        nombre: usuario.displayName,
+        email: usuario.email,
+      },
     });
 
   } catch (error: any) {

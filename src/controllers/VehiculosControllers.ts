@@ -115,7 +115,7 @@ export async function getVehiculos(req: Request, res: Response) {
     const instance = firebase.db.collection(FIREBASE_COLLECTION_NAMES.VEHICULOS);
 
     if (id) {
-      query = instance.where('id', '==', id);
+      query = instance.where('id', '==', id).where('uid', '==', req.user.uid);
     } else {
       query = instance.where('uid', '==', req.user.uid);
     }
@@ -193,8 +193,6 @@ export async function updateVehiculo(req: Request, res: Response) {
     const query = instance.where('id', '==', id);
     const carSnap = await query.get();
 
-    const vehiculo = carSnap.docs[0].data();
-
     // Si NO tiene registros el array es porque NO esta registrado
     if (carSnap.docs.length === 0) {
       res.status(404).json({
@@ -205,11 +203,22 @@ export async function updateVehiculo(req: Request, res: Response) {
       return;
     }
 
+    const vehiculo = carSnap.docs[0].data();
+
     if (kilometraje < Number(vehiculo.kilometraje)) {
       res.status(200).json({
         error: true,
         code: 200,
         message: 'El kilometraje ingresado es menor al kilometraje del vehículo.',
+      });
+      return;
+    }
+
+    if (vehiculo.uid !== req.user.uid) {
+      res.status(403).json({
+        error: true,
+        code: 403,
+        message: 'No puede editar este vehículo porque no le pertenece',
       });
       return;
     }
@@ -255,24 +264,42 @@ export async function eliminarVehiculo(req: Request, res: Response) {
 
   try {
     // Validar que el vehiculo NO haya sido registrado anteriormente
-    const instance = firebase.db.collection(FIREBASE_COLLECTION_NAMES.VEHICULOS);
-    const query = instance.where('id', '==', id);
-    const carSnap = await query.get();
+    const instanceVehiculo = firebase.db.collection(FIREBASE_COLLECTION_NAMES.VEHICULOS);
+    const instanceMan = firebase.db.collection(FIREBASE_COLLECTION_NAMES.MANTENIMIENTOS);
+    const queryVehiculo = instanceVehiculo.where('id', '==', id);
+    const queryMan = instanceMan.where('uid', '==', req.user.uid).where('vehiculo', '==', id.toString());
+    const carSnap = await queryVehiculo.get();
+    const manSnap = await queryMan.get();
 
     // Si NO tiene registros el array es porque NO esta registrado
     if (carSnap.docs.length === 0) {
       res.status(404).json({
         error: true,
         code: 404,
-        message: 'El vehículo no ha sido registrado. Verifique.',
+        message: 'El vehículo no encontrado',
+      });
+      return;
+    }
+
+    // Si el uid del vehiculo es distinto al del usuario logueado (el que intenta hacer la petición)
+    // Significa que esta intentando eliminar vehiculo de otra persona, por eso se envia ese mensaje generico
+    // No se envia status 403 Forbiden para evitar actos maliciosos de intento de adivinar el ID de un vehículo.
+    if (carSnap.docs[0].data().uid !== req.user.uid) {
+      res.status(404).json({
+        error: true,
+        code: 404,
+        message: 'El vehículo con el id proporcionado no existe',
       });
       return;
     }
 
     // Eliminar vehiculo
-    await instance.doc(id).delete();
+    await instanceVehiculo.doc(id).delete();
 
-    // Eliminar mantenimientos
+    // Eliminar mantenimientos del vehiculo
+    manSnap.docs.map(async man => {
+      await instanceMan.doc(man.id).delete();
+    });
 
     res.status(200).json({
       error: false,

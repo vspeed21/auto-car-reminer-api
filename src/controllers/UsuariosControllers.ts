@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import firebase from '../firebase';
 import { FIREBASE_COLLECTION_NAMES } from '../constants';
+import fechaToDate from '../helpers';
 
 
 
@@ -181,27 +182,6 @@ export async function getUserStats(req: Request, res: Response) {
 
 }
 
-function fechaToDate(fecha: any): Date | null {
-  try {
-    if (!fecha) return null;
-    if (fecha instanceof Date) return fecha;
-    if (typeof fecha === 'string') {
-      const d = new Date(fecha.includes('T') ? fecha : `${fecha}T12:00:00`);
-      return isNaN(d.getTime()) ? null : d;
-    }
-    if (typeof fecha._seconds === 'number') {
-      const d = new Date(fecha._seconds * 1000);
-      return isNaN(d.getTime()) ? null : d;
-    }
-    if (typeof fecha.toDate === 'function') {
-      return fecha.toDate();
-    }
-    return null;
-  } catch {
-    return null;
-  }
-}
-
 export async function updateTokenUser(req: Request, res: Response) {
   const { token } = req.body;
 
@@ -237,49 +217,6 @@ export async function updateTokenUser(req: Request, res: Response) {
       code: 500,
       message: 'Ocurrio un error al actualizar el usuario: ' + error,
     });
-  }
-
-}
-
-export async function enviarNotificacionTest(req: Request, res: Response) {
-
-  try {
-    // 1. Obtener la fecha de hoy
-    const today = new Date().toISOString().split('T')[0];
-
-    // 2. Buscar mantenimientos de hoy
-    const mantenimientosSnapshot = await firebase.db.collection(FIREBASE_COLLECTION_NAMES.MANTENIMIENTOS)
-      .where('fecha', '==', today)
-      .get();
-
-    if (mantenimientosSnapshot.empty) {
-      res.json({ message: 'No hay mantenimientos' });
-      return;
-    }
-
-    // 3. Procesar y enviar
-    const promesasNotificaciones = mantenimientosSnapshot.docs.map(async (doc) => {
-      const mantenimiento = doc.data();
-
-      const userDoc = await firebase.db.collection('usuarios').doc(mantenimiento.uid).get();
-      const userToken = userDoc.data()?.token;
-
-      const notificacionEnviada = await firebase.messaging.send({
-        notification: {
-          title: '¡Recordatorio de Mantenimiento!',
-          body: `Tu vehículo necesita: ${mantenimiento.nombre} antes del ${mantenimiento.fecha_recordatorio}.`,
-        },
-        token: userToken,
-      });
-      // await doc.ref.update({ notificacionEnviada: true });
-      res.json({ notificacionEnviada });
-    });
-
-    await Promise.all(promesasNotificaciones);
-    // console.log(`Se enviaron ${mantenimientosSnapshot.size} notificaciones.`);
-
-  } catch (error) {
-    console.error('Error en la función de recordatorios:', error);
   }
 
 }
